@@ -1,0 +1,12 @@
+<link rel="stylesheet" href="/templates/easy_fkb/css/line-awesome.min.css">
+
+[#if WIN_USER!="1"#]
+	[#if ACTION=""#]
+		[#inc action_usual.html#]
+	[#endif#]
+	[#if ACTION="admin"#]
+		[#inc action_admin.html#]
+	[#endif#]
+[#else#]
+	[#inc win_user.html#]
+[#endif#]
