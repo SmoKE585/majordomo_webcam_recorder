@@ -65,8 +65,15 @@
 				</tr>
 			</table>
 			[#module name="linkedobject" object_field="linked_object2" property_field="linked_property2"#]
-			<input type="hidden" name="view_mode" value="add_camera_DB"> 
 			
+			<label style="margin-top: 15px;">На что реагировать?</label>
+			<select class="form-control" name="reacktOn" style="outline: none;border-radius: 5px;">
+				<option value="1">1</option>
+				<option value="0">0</option>
+				<option value="2">Любое действие</option>
+			</select>
+			
+			<input type="hidden" name="view_mode" value="add_camera_DB"> 
 			<center style="margin-top: 25px;"><button type="submit" class="btn btn-success"><i class="las la-plus"></i> Сохранить и добавить</button></center>
 		</div>
 	</div>

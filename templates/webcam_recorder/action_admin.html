@@ -18,12 +18,7 @@
 			[#endif#]
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
-			<li><a href="https://mjdm.ru/forum/viewtopic.php?f=5&t=6960" target="_blank"><i class="las la-comment-dots" style="font-size: 1.9rem;vertical-align: top;"></i> Обсуждение на форуме</a></li>
-			[#if SETTINGS_BLOCK==0#]
-				<li><a href="?view_mode=settings"><i class="las la-cog" style="font-size: 1.9rem;vertical-align: top;"></i> Показать настройки</a></li>
-			[#else#]
-				<li><a href="?view_mode=settings"><i class="las la-cog" style="font-size: 1.9rem;vertical-align: top;"></i> Скрыть настройки</a></li>
-			[#endif SETTINGS_BLOCK#]
+			<li><a href="?" target="_blank"><i class="las la-comment-dots" style="font-size: 1.9rem;vertical-align: top;"></i> Обсуждение на форуме</a></li>
 		</ul>
 	  </div><!--/.nav-collapse -->
 	</div><!--/.container-fluid -->
@@ -41,35 +36,59 @@
 	[#inc add_camera.html#]
 [#else#]
 	[#if EMPTY_CAMS==1#]
-		[#begin PROPERTIES#]
-			<div class="row" style="border: 1px solid #e7e7e7;border-radius: 5px;padding-top: 10px;padding-bottom: 10px;margin-top: 15px;">
-				<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-2" style="border-right: 1px solid #e7e7e7;">
-					<h4 style="margin: 0px;"><i class="lar la-circle"></i> [#CAM_NAME#]</h4>
-					<span style="padding-left: 25px;">[#DEVICE_ID#]</span>
-				</div>
-				<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-2" style="border-right: 1px solid #e7e7e7;">
-					<div><i class="las la-stethoscope"></i> [#if LINKED_OBJECT1==""#]Не связана со свойством[#else#][#LINKED_OBJECT1#].[#LINKED_PROPERTY1#][#endif#]</div>
-					<div><i class="las la-stethoscope"></i> [#if LINKED_OBJECT2==""#]Не связана со свойством[#else#][#LINKED_OBJECT2#].[#LINKED_PROPERTY2#][#endif#]</div>
-				</div>
-				<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-3" style="border-right: 1px solid #e7e7e7;">
-					<div style="margin: 0px;font-size: 1rem;">[#PATH#]</div>
-					<div style="margin: 0px;font-size: 1rem;">[#CODEC#], [#RESOLUTION#], [#BITRATE#] к/с, Длительность: [#SECOND#] сек.</div>
-				</div>
-				<div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-5 text-right">
-					<form action="?" method="post" enctype="multipart/form-data" id="recordingForm_[#ID#]">
-						<input type="hidden" name="mode" value="recording">
-						<input type="hidden" name="view_mode" value="[#ID#]">
-					</form>
-					<form action="?" method="post" enctype="multipart/form-data" id="deleteForm_[#ID#]">
-						<input type="hidden" name="mode" value="delete_camera">
-						<input type="hidden" name="view_mode" value="[#ID#]">
-					</form>
-					
-					<button type="button" onclick="document.getElementById('recordingForm_[#ID#]').submit();" class="btn btn-default" style="margin-top: 3px;"><i class="las la-bell"></i> Имитировать сработку</button>
-					<button type="button" onclick="if(confirm('Удалить камеру [#CAM_NAME#]?')) {document.getElementById('deleteForm_[#ID#]').submit();}" class="btn btn-danger" style="margin-top: 3px;"><i class="las la-times-circle"></i> Удалить</button>
-				</div>
-			</div>
-		[#end PROPERTIES#]
+		<table class="table">
+			<thead>
+				<tr>
+					<th scope="col">camID</th>
+					<th scope="col">Данные</th>
+					<th scope="col">Настройки</th>
+					<th scope="col">Сводка</th>
+					<th scope="col">Реагировать на</th>
+					<th scope="col">Настройки</th>
+				</tr>
+			</thead>
+			<tbody>
+			[#begin PROPERTIES#]
+				<tr>
+					<td>[#ID#]</td>
+					<td>
+						[#CAM_NAME#]
+						<div style="font-size: 1rem;">[#DEVICE_ID#]</div>
+					</td>
+					<td>
+						<div style="margin: 0px;font-size: 1rem;">[#PATH#]</div>
+						<div style="margin: 0px;font-size: 1rem;">[#CODEC#], [#RESOLUTION#], [#BITRATE#] к/с, Длительность: [#SECOND#] сек.</div>
+					</td>
+					<td>
+						<div style="margin: 0px;font-size: 1rem;">Записей: [#TOTAL_VIDEO#] шт.<br>Последняя: [#LAST_VIDEO#]<br>
+						Занято: [#PATH_SIZE#] MB.
+						</div>
+					</td>
+					<td>
+						<div><i class="las la-stethoscope"></i> [#if LINKED_OBJECT1==""#]Не связана со свойством[#else#][#LINKED_OBJECT1#].[#LINKED_PROPERTY1#][#endif#]</div>
+						<div><i class="las la-stethoscope"></i> [#if LINKED_OBJECT2==""#]Не связана со свойством[#else#][#LINKED_OBJECT2#].[#LINKED_PROPERTY2#][#endif#]</div>
+					</td>
+					<td>
+						<form action="?" method="post" enctype="multipart/form-data" id="recordingForm_[#ID#]">
+							<input type="hidden" name="mode" value="recording">
+							<input type="hidden" name="view_mode" value="[#ID#]">
+						</form>
+						<form action="?" method="post" enctype="multipart/form-data" id="deleteForm_[#ID#]">
+							<input type="hidden" name="mode" value="delete_camera">
+							<input type="hidden" name="view_mode" value="[#ID#]">
+						</form>
+						<form action="?" method="post" enctype="multipart/form-data" id="deleteFiles_[#ID#]">
+							<input type="hidden" name="mode" value="delete_files">
+							<input type="hidden" name="view_mode" value="[#ID#]">
+						</form>
+						<button type="button" title="Имитировать сработку" onclick="document.getElementById('recordingForm_[#ID#]').submit();" class="btn btn-default" style="margin-top: 3px;"><i class="las la-bell"></i></button>
+						<button type="button" title="Удалить файлы камеры" onclick="if(confirm('Удалить записи с камеры [#CAM_NAME#]?')) {document.getElementById('deleteFiles_[#ID#]').submit();}" class="btn btn-warning" style="margin-top: 3px;"><i class="las la-trash"></i></button>
+						<button type="button" title="Удалить камеру" onclick="if(confirm('Удалить камеру [#CAM_NAME#]?')) {document.getElementById('deleteForm_[#ID#]').submit();}" class="btn btn-danger" style="margin-top: 3px;"><i class="las la-times-circle"></i></button>
+					</td>
+				</tr>
+			[#end PROPERTIES#]
+			</tbody>
+		</table>
 	[#else#]
 	<div class="row" style="border: 1px solid #e7e7e7;border-radius: 5px;padding-top: 10px;padding-bottom: 10px;margin-top: 15px;">
 		<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-center">
@@ -97,6 +116,6 @@
 [#endif#]
 <div class="row" style="margin-top: 40px;">
 	<div class="col-md-12" style="text-align: center;border-top: 1px solid #e7e7e7;padding-top: 15px;font-size: 1rem;color: gray;">
-		Версия модуля: <i class="las la-code-branch" style="vertical-align: middle;"></i> v.[#VERSION_MODULE#] | Проект доступен на <a href="https://github.com/SmoKE585/majordomo_easy_fkb" target="_blank"><i class="lab la-github"></i> GitHub</a> | Автор: Александр SmoKE xD Аболмасов
+		Версия модуля: <i class="las la-code-branch" style="vertical-align: middle;"></i> v.[#VERSION_MODULE#] | Проект доступен на <a href="https://github.com/SmoKE585/majordomo_webcam_recorder" target="_blank"><i class="lab la-github"></i> GitHub</a> | Автор: Александр SmoKE xD Аболмасов
 	</div>
 </div>
