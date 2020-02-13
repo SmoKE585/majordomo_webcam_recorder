@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '1.2';
+		$this->version = '1.3';
 		$this->checkInstalled();
 	}
 
@@ -175,7 +175,7 @@ class webcam_recorder extends module {
 		$dataInDB = SQLSelect("SELECT * FROM `webcam_recorder` ORDER BY ID");
 		$out['PROPERTIES'] = $dataInDB;
 		foreach($dataInDB as $key => $value) {
-			$scan = scandir($dataInDB[$key]['PATH']);
+			$scan = scandir($dataInDB[$key]['PATH'], 1);
 			$out['PROPERTIES'][$key]['TOTAL_VIDEO'] = count($scan)-2;
 			$out['PROPERTIES'][$key]['LAST_VIDEO'] = $scan[2];
 			
@@ -279,6 +279,52 @@ class webcam_recorder extends module {
 	
 	function usual(&$out) {
 		$this->admin($out);
+		
+		//Выгружаем массив камер
+		$dataInDB = SQLSelect("SELECT * FROM `webcam_recorder` ORDER BY ID");
+		$out['PROPERTIES'] = $dataInDB;
+		
+		global $type; 
+		global $date; 
+		global $camid; 
+		global $showCol;
+		global $iteration;
+		global $arrayData;
+		global $countArray;
+		global $scanFiles;
+		
+		$this->type = strip_tags($_GET['type']);
+		$this->date = strip_tags($_GET['date']);
+		$this->camid = (int) strip_tags($_GET['camid']);
+		$this->showCol = (int) strip_tags($_GET['showCol']);
+		
+		$this->date = explode(".", strip_tags($this->date));
+		$this->date = $this->date[0].$this->date[1].$this->date[2];
+		
+		//Если запрашиваем скрипт массив данных в JSON
+		if($type == 'json') {
+			$data = SQLSelectOne("SELECT * FROM `webcam_recorder` WHERE `ID` = '".dbSafe($this->camid)."' ORDER BY ID");
+			$this->scanFiles = scandir($data['PATH'], 1);
+			//var_dump($data);
+			$this->arrayData = [];
+			$this->iteration = 0;
+			$this->countArray = count($this->scanFiles);
+
+			foreach($this->scanFiles as $key => $value) {
+				$dateSrav = explode('_', $this->scanFiles[$key]);
+				if($dateSrav[0] == $this->date) {
+					array_push($this->arrayData, substr($data['PATH'], 13).'/'.$this->scanFiles[$key].'/');
+					//+ итерация цикла
+					$this->iteration++;
+				}
+				//- счет, чтобы убрать папки "наверх"
+				$this->countArray--;
+				if($this->iteration >= $this->showCol) break;
+				if($this->countArray <= 2) break;
+			}
+
+			echo json_encode($this->arrayData);
+		}
 	}
 
 	function install($data='') {

@@ -1,1 +1,112 @@
-<!--# Action Usual #-->
+<script>
+//Функция запроса картинок и видео с камер
+function getCameraData() {
+	date = $("#dateCameraPick").val();
+	camID = $("#ShowCameraID").val();
+	showCol = $("#showColCameraVideo").val();
+	iteration = 0;
+	$('#camera_history_show').html('<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-center"><i class="las la-cloud-upload-alt" style="font-size: 12rem;"></i><br><br><span style="font-size: 2rem;">Загружаем данные...</span></div>')
+	
+	$.get({
+		url: '/module/webcam_recorder.html?type=json&date=' + date + '&camid=' + camID + '&showCol=' + showCol,
+		success: function(responce) {
+			explodeTrashMJDM = responce.split('<!--begin of');
+			responce = JSON.parse(explodeTrashMJDM[0]);
+			
+			if(responce.length != 0) { 
+				$('#camera_history_show').html('');
+				for (var value in responce) {
+					nameSplit = responce[value].split('/');
+					(iteration >= 1) ? html = $('#camera_history_show').html() : html = '';
+					$('#camera_history_show').html(html + '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-2 text-center" style="padding: 10px;" onclick="getCameraDataLoadName(\''+ nameSplit[5] +'\', \''+ responce[value] + 'video' +'\');"><img style="width: 100%;border-radius: 5px;" src="' + responce[value] + 'photo.jpg"><span style="font-size: 1.5rem;">' + nameSplit[5] + '</span></div>');
+					iteration++;
+				}
+			} else {
+				$('#camera_history_show').html('<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-center"><div style="margin-top: 50px;"><i class="la la-folder-open" style="font-size: 4rem;"></i><br>Нет записей за этот день!</div></div>')
+			}
+		},
+		error: function(responce) {
+			console.log('Error load data! AJAX URL: /module/webcam_recorder.html?type=json&date=' + date + '&camid=' + camID + '&showCol=' + showCol);
+		}
+	});
+}
+
+//Вспомогательная функция для раскладки архива видео
+function getCameraDataLoadName(name, link) {	
+	$('#cameraVideoPlayer').attr('src', '' + link + '.mp4');
+	$('#cameraVideoPlayer_Name').html(name);
+	$('#cameraVideoPlayer_ShareLink').html(' (<a href="'+ link +'.mp4" download>Загрузить</a>)');
+	$('#modal-playerCameraVideo').modal('show');
+}
+
+$(function() {
+	//single date
+	$('#dateCameraPick').daterangepicker({
+		singleDatePicker: true,
+		locale: {
+			format: 'DD.MM.YYYY'
+		},
+	});
+});
+
+</script>
+
+<link rel="stylesheet" href="/templates/webcam_recorder/datepicker/DatePick.css">
+<script src="/templates/webcam_recorder/datepicker/moment.min.js"></script>
+<script src="/templates/webcam_recorder/datepicker/daterangepicker.js"></script>
+		
+<div style="padding: 20px;border: 1px solid whitesmoke;border-radius: 10px;margin: 20px;">
+	<div class="row">
+		<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12 text-center">
+			<div class="form-group">
+				<input type="text" class="form-control" style="border-radius: 10px;padding: 10px;text-align: center;background-color: #ffffff;width: 100%;" id="dateCameraPick" placeholder="Выберите дату">
+			</div>
+		</div>
+		<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12 text-center">
+			<select class="custom-select form-control" id="showColCameraVideo" style="border-radius: 10px;text-align: center;">
+				<option value="10">Последние 10</option>
+				<option value="20">Последние 20</option>
+				<option value="40">Последние 40</option>
+				<option value="60">Последние 60</option>
+				<option value="999">Показывать все</option>
+			</select>
+		</div>
+		<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12 text-center">
+			<select class="custom-select form-control" id="ShowCameraID" style="border-radius: 10px;text-align: center;">
+				[#begin PROPERTIES#]
+					<option value="[#ID#]">[#CAM_NAME#]</option>
+				[#end PROPERTIES#]
+			</select>
+		</div>
+		<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12 text-center">
+			<button type="button" class="btn btn-success" onclick="getCameraData();">Обновить записи</button>
+		</div>
+	</div>
+	<div class="row" id="camera_history_show">
+		<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-center">
+			<div style="font-size: 1.5rem;margin: 50px;">Выберите дату для загрузки видео...</div>
+		</div>
+	</div>
+</div>
+<div id="modal-playerCameraVideo" class="modal fade">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">
+					<span id="cameraVideoPlayer_Name"></span>
+					<span id="cameraVideoPlayer_ShareLink"></span>
+				</h4>
+				<button type="button" class="close" data-dismiss="modal">
+					<span aria-hidden="true">×</span>
+					<span class="sr-only">close</span>
+				</button>
+			</div>
+			<div class="modal-body text-center">
+				<video src="" id="cameraVideoPlayer" style="width: 100%;" controls autoplay loop muted></video> 
+				<br><br>
+				<button type="button" class="btn btn-info" data-dismiss="modal">Закрыть</button>
+				<input type="hidden" id="cameraVideoPlayer_ShareLinkInput" value="">
+			</div>
+		</div>
+	</div>
+</div>
