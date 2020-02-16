@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '1.3';
+		$this->version = '1.4';
 		$this->checkInstalled();
 	}
 
@@ -241,11 +241,6 @@ class webcam_recorder extends module {
 		
 		$this->createFolder($data['PATH'].'/'.$dateTimeName.'/');
 		
-		//Делаем фото
-		if($data["PHOTO"] == 1) {
-			exec('sudo timeout -s INT 60s ffmpeg -f video4linux2 -i '.$data["DEVICE_ID"].' -f image2 -s '.$data["RESOLUTION"].' -vframes 1 -y '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg');
-		}
-		
 		switch($data["SECOND"]) {
 			case '5':
 				$durationRecord = '00:00:05';
@@ -274,7 +269,12 @@ class webcam_recorder extends module {
 		}
 		
 		//Пишем видео
-		exec('sudo timeout -s INT 120s ffmpeg -y -f video4linux2 -i '.$data["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' '.$data['PATH'].'/'.$dateTimeName.'/video.mp4');		
+		exec('sudo timeout -s INT 120s ffmpeg -y -f video4linux2 -i '.$data["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' '.$data['PATH'].'/'.$dateTimeName.'/video.mp4');
+		
+		//Делаем фото
+		if($data["PHOTO"] == 1) {
+			exec('sudo timeout -s INT 60s ffmpeg -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg');
+		}
 	}
 	
 	function usual(&$out) {
