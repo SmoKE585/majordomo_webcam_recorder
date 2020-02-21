@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '1.4';
+		$this->version = '1.5';
 		$this->checkInstalled();
 	}
 
@@ -89,16 +89,21 @@ class webcam_recorder extends module {
 		if($this->mode == 'delete_camera' && !empty($this->view_mode)) {
 			//Удаляем файлы
 			$data = SQLSelectOne("SELECT * FROM `webcam_recorder` WHERE ID = '".dbSafe($this->view_mode)."' ORDER BY ID");
-			$this->rmRec($data['PATH'].'/');
-			//Удаление камеры
-			SQLExec("DELETE FROM `webcam_recorder` WHERE ID = '".dbSafe($this->view_mode)."' LIMIT 1");
+			
+			if(!empty($data['PATH'])) {
+				$this->rmRec($data['PATH'].'/');
+				
+				//Удаление камеры
+				SQLExec("DELETE FROM `webcam_recorder` WHERE ID = '".dbSafe($this->view_mode)."' LIMIT 1");
+			}
+			
 			$this->redirect("?");
 		}
 		
 		if($this->mode == 'delete_files' && !empty($this->view_mode)) {
 			//Удаляем файлы
 			$data = SQLSelectOne("SELECT * FROM `webcam_recorder` WHERE ID = '".dbSafe($this->view_mode)."' ORDER BY ID");
-			$this->rmRec($data['PATH'].'/');
+			if(!empty($data['PATH'])) $this->rmRec($data['PATH'].'/');
 			$this->redirect("?");
 		}
 		
