@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '1.6';
+		$this->version = '1.7';
 		$this->checkInstalled();
 	}
 
@@ -138,7 +138,7 @@ class webcam_recorder extends module {
 			if($cameraName == '') $cameraName = 'cam'.$rand;
 			if($howSec == '') $howSec = 10;
 			if($codec == '') $codec = 'libx264';
-			if($folderPath == '') $folderPath = '/var/www/html/cms/cached/webcam_recorder/cam'.$rand;
+			if($folderPath == '') $folderPath = $_SERVER['DOCUMENT_ROOT'].'/cms/cached/webcam_recorder/cam'.$rand;
 			if($takePhoto == '') $takePhoto = 1;
 			if($resol == '') $resol = '640x480';
 			if($kadr == '') $kadr = '15';
@@ -202,8 +202,9 @@ class webcam_recorder extends module {
 			//Узнаем размер папки
 			$out['PROPERTIES'][$key]['PATH_SIZE'] = round($this->getFilesSize($dataInDB[$key]['PATH'])/1000000, 2);
 		}
-		
+
 		//Флаг на то, есть ли камеры
+		$out['DOCUMENT_ROOT'] = $_SERVER['DOCUMENT_ROOT'];
 		$out['EMPTY_CAMS'] = $this->config['EMPTY_CAMS'];
 		$out['VERSION_MODULE'] = $this->version;
 		$out['FFMPEG_STATUS'] = (shell_exec('ffmpeg -h')) ? 1 : 0;
