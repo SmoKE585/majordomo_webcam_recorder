@@ -1,0 +1,83 @@
+[#begin PROPERTIES_UPDATE#]
+<form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
+	<div class="row" style="border: 1px solid #e7e7e7;border-radius: 5px;padding-top: 10px;padding-bottom: 10px;margin-top: 15px;">
+		<div class="col-md-6 col-md-offset-3">
+			<h4 style="border-bottom: 1px solid #e7e7e7;">Редактирование камеры </h4>
+			<label>Имя камеры</label>
+			<input type="text" class="form-control" style="outline: none;border-radius: 5px;" name="cameraName" placeholder="Имя камеры, просто для удобства" value="[#CAM_NAME#]" autofocus="">
+			
+			<label style="margin-top: 15px;">Устройство захвата <span style="color: red">(*)</span></label>
+			<input type="text" class="form-control" style="outline: none;border-radius: 5px;" name="deviceAddr" placeholder="Формат /dev/video1" value="[#DEVICE_ID#]">
+			<div style="font-size: 1rem;border: 1px dotted #e7e7e7;background: rgba(255, 165, 0, 0.12);padding: 10px;margin-top: 10px;border-radius: 5px;"><i class="las la-info"></i> Данные из вашей системы:<br>[#FFMPEG_VIDEO_DEV#]</div>
+			
+			<label style="margin-top: 15px;">Сколько секунд записывать видео?</label>
+			<select class="form-control" name="howSec" style="outline: none;border-radius: 5px;">
+				<option value="5"[#if SECOND==5#] selected[#endif#]>5 секунд</option>
+				<option value="10"[#if SECOND==10#] selected[#endif#]>10 секунд</option>
+				<option value="15"[#if SECOND==15#] selected[#endif#]>15 секунд</option>
+				<option value="25"[#if SECOND==25#] selected[#endif#]>25 секунд</option>
+				<option value="40"[#if SECOND==40#] selected[#endif#]>40 секунд</option>
+				<option value="60"[#if SECOND==60#] selected[#endif#]>1 минута</option>
+				<option value="120"[#if SECOND==120#] selected[#endif#]>2 минуты</option>
+				<option value="600"[#if SECOND==600#] selected[#endif#]>5 минут</option>
+			</select>
+			
+			<label style="margin-top: 15px;">Какой кодек использовать?</label>
+			<select class="form-control" name="codec" style="outline: none;border-radius: 5px;">
+				<option value="libx264">libx264</option>
+			</select>
+			
+			<label style="margin-top: 15px;">Папка для записей</label>
+			<input type="text" class="form-control" style="outline: none;border-radius: 5px;" name="folderPath" title="Нельзя поменять путь для добавленной камеры" placeholder="Полный путь до папки, например: /var/www/html/cms/cached/webcam_recorder/cam1" value="[#PATH#]" readonly>
+			<div style="font-size: 1rem;border: 1px dotted #e7e7e7;background: rgba(255, 165, 0, 0.12);padding: 10px;margin-top: 10px;border-radius: 5px;"><i class="las la-info"></i> В этой папке модуль создаст папки с датами и в них будет помещать видео. Можете оставить пустым, тогда будет использован стандартный путь: <b>/var/www/html/cms/cached/webcam_recorder/cam_[ID]</b></div>
+			
+			<label style="margin-top: 15px;">Делать фото перед записью видео?</label>
+			<select class="form-control" name="takePhoto" style="outline: none;border-radius: 5px;">
+				<option value="1"[#if PHOTO==1#] selected[#endif#]>Да</option>
+				<option value="0"[#if PHOTO==0#] selected[#endif#]>Нет</option>
+			</select>
+			
+			<label style="margin-top: 15px;">Разрешение видео/фото (В пикселях)</label>
+			<input type="text" class="form-control" style="outline: none;border-radius: 5px;width: 30%;" name="resol" placeholder="640x480" value="[#RESOLUTION#]">
+			
+			<label style="margin-top: 15px;">Частота кадров (От 1 до 30)</label>
+			<input type="text" class="form-control" style="outline: none;border-radius: 5px;width: 30%;" name="kadr" placeholder="Чем выше - тем сложнее ПК" value="[#BITRATE#]">
+			
+			<label style="margin-top: 15px;">Реагировать на:</label>
+			<table class="table table-stripped" style="font-size: 1.2rem;">
+				<tr>
+					<td style="border: 0px;">
+						<input type="text"  class="form-control "  name="linked_object1" id="linked_object1"  value="[#LINKED_OBJECT1#]" >
+					</td>
+					<td style="border: 0px;">
+						<input type="text"  class="form-control "  name="linked_property1" id="linked_property1" value="[#LINKED_PROPERTY1#]" >
+					</td>
+				</tr>
+			</table>
+			[#module name="linkedobject" object_field="linked_object1" property_field="linked_property1"#]
+			<table class="table table-stripped" style="font-size: 1.2rem;">
+				<tr style="border: 0px;">
+					<td style="border: 0px;">
+						<input type="text"  class="form-control "  name="linked_object2" id="linked_object2"  value="[#LINKED_OBJECT2#]" >
+					</td>
+					<td style="border: 0px;">
+						<input type="text"  class="form-control "  name="linked_property2" id="linked_property2" value="[#LINKED_PROPERTY2#]" >
+					</td>
+				</tr>
+			</table>
+			[#module name="linkedobject" object_field="linked_object2" property_field="linked_property2"#]
+			
+			<label style="margin-top: 15px;">На что реагировать?</label>
+			<select class="form-control" name="reacktOn" style="outline: none;border-radius: 5px;">
+				<option value="1"[#if REAKTON==1#] selected[#endif#]>1</option>
+				<option value="0"[#if REAKTON==0#] selected[#endif#]>0</option>
+				<option value="2"[#if REAKTON==2#] selected[#endif#]>Любое действие</option>
+			</select>
+			
+			<input type="hidden" name="view_mode" value="edit_camera_DB">
+			<input type="hidden" name="camID" value="[#ID#]">
+			<center style="margin-top: 25px;"><button type="submit" class="btn btn-success"><i class="las la-plus"></i> Сохранить изменения</button></center>
+		</div>
+	</div>
+</form>
+[#end PROPERTIES_UPDATE#]

@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '1.5';
+		$this->version = '1.6';
 		$this->checkInstalled();
 	}
 
@@ -89,21 +89,16 @@ class webcam_recorder extends module {
 		if($this->mode == 'delete_camera' && !empty($this->view_mode)) {
 			//Удаляем файлы
 			$data = SQLSelectOne("SELECT * FROM `webcam_recorder` WHERE ID = '".dbSafe($this->view_mode)."' ORDER BY ID");
-			
-			if(!empty($data['PATH'])) {
-				$this->rmRec($data['PATH'].'/');
-				
-				//Удаление камеры
-				SQLExec("DELETE FROM `webcam_recorder` WHERE ID = '".dbSafe($this->view_mode)."' LIMIT 1");
-			}
-			
+			$this->rmRec($data['PATH'].'/');
+			//Удаление камеры
+			SQLExec("DELETE FROM `webcam_recorder` WHERE ID = '".dbSafe($this->view_mode)."' LIMIT 1");
 			$this->redirect("?");
 		}
 		
 		if($this->mode == 'delete_files' && !empty($this->view_mode)) {
 			//Удаляем файлы
 			$data = SQLSelectOne("SELECT * FROM `webcam_recorder` WHERE ID = '".dbSafe($this->view_mode)."' ORDER BY ID");
-			if(!empty($data['PATH'])) $this->rmRec($data['PATH'].'/');
+			$this->rmRec($data['PATH'].'/');
 			$this->redirect("?");
 		}
 		
@@ -117,7 +112,12 @@ class webcam_recorder extends module {
 			$out['FFMPEG_VIDEO_DEV'] = $generateHint;
 		}
 		
-		if($this->view_mode == 'add_camera_DB') {
+		if($this->mode == 'edit_camera' && !empty($this->view_mode)) {
+			$dataInDB = SQLSelectOne("SELECT * FROM `webcam_recorder` WHERE ID = '".dbSafe($this->view_mode)."' ORDER BY ID");
+			$out['PROPERTIES_UPDATE'] = $dataInDB;
+		}
+		
+		if($this->view_mode == 'add_camera_DB' || $this->view_mode == 'edit_camera_DB') {
 			global $cameraName;
 			global $deviceAddr;
 			global $howSec;
@@ -166,13 +166,28 @@ class webcam_recorder extends module {
 				addLinkedProperty($array['LINKED_OBJECT2'], $array['LINKED_PROPERTY2'], $this->name);
 			}
 			
-			SQLInsert('webcam_recorder', $array);
+			if($this->view_mode == 'add_camera_DB') SQLInsert('webcam_recorder', $array);
+			if($this->view_mode == 'edit_camera_DB') {
+				global $camID;
+				$dataInDB = SQLSelectOne("SELECT * FROM `webcam_recorder` WHERE ID = '".dbSafe($camID)."' ORDER BY ID");
+				
+				//Если юзвер поменял свойство, то нужно перепривязать
+				if($dataInDB['LINKED_OBJECT1'] != $array['LINKED_OBJECT1'] || $dataInDB['LINKED_PROPERTY1'] != $array['LINKED_PROPERTY1']) {
+					removeLinkedProperty($dataInDB['LINKED_OBJECT1'], $dataInDB['LINKED_PROPERTY1'], $this->name);
+				}
+				if($dataInDB['LINKED_OBJECT2'] != $array['LINKED_OBJECT2'] || $dataInDB['LINKED_PROPERTY2'] != $array['LINKED_PROPERTY2']) {
+					removeLinkedProperty($dataInDB['LINKED_OBJECT2'], $dataInDB['LINKED_PROPERTY2'], $this->name);
+				}
+				
+				$array['ID'] = $dataInDB['ID'];
+				SQLUpdate('webcam_recorder', $array);
+			}
 			
 			$this->createFolder($folderPath.'/');
 			
 			$this->config['EMPTY_CAMS'] = 1;
 			$this->saveConfig();
-			
+					
 			$this->redirect("?");
 		}
 		
@@ -203,7 +218,7 @@ class webcam_recorder extends module {
 		}
 		return false;
 	}
-	
+		
 	function propertySetHandle($object, $property, $value) {
 		$this->getConfig();
 		$properties = SQLSelect("SELECT * FROM `webcam_recorder` WHERE (LINKED_OBJECT1='" . DBSafe($object) . "' AND LINKED_PROPERTY1='" . DBSafe($property) . "') OR (LINKED_OBJECT2='" . DBSafe($object) . "' AND LINKED_PROPERTY2='" . DBSafe($property) . "')");
@@ -273,62 +288,88 @@ class webcam_recorder extends module {
 				break;
 		}
 		
-		//Пишем видео
-		exec('sudo timeout -s INT 120s ffmpeg -y -f video4linux2 -i '.$data["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' '.$data['PATH'].'/'.$dateTimeName.'/video.mp4');
-		
-		//Делаем фото
+		//Генерируем команду *nix
+		$nixCommand_Video = 'sudo timeout -s INT 120s ffmpeg -y -f video4linux2 -i '.$data["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
 		if($data["PHOTO"] == 1) {
-			exec('sudo timeout -s INT 60s ffmpeg -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg');
+			$nixCommand_Photo = ';sudo timeout -s INT 60s ffmpeg -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg';
+			if(!is_dir($data['PATH'].'/last/')) {
+				$this->createFolder($data['PATH'].'/last/');
+			}
+			//copy($data['PATH'].'/'.$dateTimeName.'/photo.jpg', $data['PATH'].'/last/last.jpg');
 		}
+		
+		//Кидаем в шел
+		shell_exec($nixCommand_Video.$nixCommand_Photo);
 	}
 	
 	function usual(&$out) {
 		$this->admin($out);
 		
-		//Выгружаем массив камер
-		$dataInDB = SQLSelect("SELECT * FROM `webcam_recorder` ORDER BY ID");
-		$out['PROPERTIES'] = $dataInDB;
+		if($this->mode == 'menu') {
+			$out['TYPE_SHOW'] = 'menu';
+		}
 		
-		global $type; 
-		global $date; 
-		global $camid; 
-		global $showCol;
-		global $iteration;
-		global $arrayData;
-		global $countArray;
-		global $scanFiles;
-		
-		$this->type = strip_tags($_GET['type']);
-		$this->date = strip_tags($_GET['date']);
-		$this->camid = (int) strip_tags($_GET['camid']);
-		$this->showCol = (int) strip_tags($_GET['showCol']);
-		
-		$this->date = explode(".", strip_tags($this->date));
-		$this->date = $this->date[0].$this->date[1].$this->date[2];
-		
-		//Если запрашиваем скрипт массив данных в JSON
-		if($type == 'json') {
-			$data = SQLSelectOne("SELECT * FROM `webcam_recorder` WHERE `ID` = '".dbSafe($this->camid)."' ORDER BY ID");
-			$this->scanFiles = scandir($data['PATH'], 1);
-			//var_dump($data);
-			$this->arrayData = [];
-			$this->iteration = 0;
-			$this->countArray = count($this->scanFiles);
-
-			foreach($this->scanFiles as $key => $value) {
-				$dateSrav = explode('_', $this->scanFiles[$key]);
-				if($dateSrav[0] == $this->date) {
-					array_push($this->arrayData, substr($data['PATH'], 13).'/'.$this->scanFiles[$key].'/');
-					//+ итерация цикла
-					$this->iteration++;
+		if($this->mode = 'arhive') {
+			$out['TYPE_SHOW'] = 'arhive';
+			$out['SHOW_CONTROLS'] = '1';
+			$out['SHOW_LAST'] = '0';
+			
+			foreach(explode(',', $this->view_mode) as $value) {
+				if($value == 'hidecontrols') {
+					$out['SHOW_CONTROLS'] = '0';
+					$out['FEWKEW'] .= $value.' - 0';
 				}
-				//- счет, чтобы убрать папки "наверх"
-				$this->countArray--;
-				if($this->iteration >= $this->showCol) break;
-				if($this->countArray <= 2) break;
+				if($value == 'showlast') {
+					$out['SHOW_LAST'] = '1';
+					$out['FEWKEW'] .= $value.' - 1';
+				}
 			}
+			
+			//Выгружаем массив камер
+			$dataInDB = SQLSelect("SELECT * FROM `webcam_recorder` ORDER BY ID");
+			$out['PROPERTIES'] = $dataInDB;
+			
+			global $type; 
+			global $date; 
+			global $camid; 
+			global $showCol;
+			global $iteration;
+			global $arrayData;
+			global $countArray;
+			global $scanFiles;
+			
+			$this->type = strip_tags($_GET['type']);
+			$this->date = strip_tags($_GET['date']);
+			$this->camid = (int) strip_tags($_GET['camid']);
+			$this->showCol = (int) strip_tags($_GET['showCol']);
+			
+			$this->date = explode(".", strip_tags($this->date));
+			$this->date = $this->date[0].$this->date[1].$this->date[2];
+			
+			//Если запрашиваем скрипт массив данных в JSON
+			if($type == 'json') {
+				$data = SQLSelectOne("SELECT * FROM `webcam_recorder` WHERE `ID` = '".dbSafe($this->camid)."' ORDER BY ID");
+				$this->scanFiles = scandir($data['PATH'], 1);
+				//var_dump($data);
+				$this->arrayData = [];
+				$this->iteration = 0;
+				$this->countArray = count($this->scanFiles);
 
-			echo json_encode($this->arrayData);
+				foreach($this->scanFiles as $key => $value) {
+					$dateSrav = explode('_', $this->scanFiles[$key]);
+					if($dateSrav[0] == $this->date) {
+						array_push($this->arrayData, substr($data['PATH'], 13).'/'.$this->scanFiles[$key].'/');
+						//+ итерация цикла
+						$this->iteration++;
+					}
+					//- счет, чтобы убрать папки "наверх"
+					$this->countArray--;
+					if($this->iteration >= $this->showCol) break;
+					if($this->countArray <= 2) break;
+				}
+
+				echo json_encode($this->arrayData);
+			}
 		}
 	}
 
@@ -377,6 +418,7 @@ webcam_recorder: LINKED_PROPERTY1 varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: LINKED_OBJECT2 varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: LINKED_PROPERTY2 varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: REAKTON varchar(255) NOT NULL DEFAULT ''
+webcam_recorder: TELEGRAMM varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: ADDTIME varchar(255) NOT NULL DEFAULT ''
 	
 EOD;

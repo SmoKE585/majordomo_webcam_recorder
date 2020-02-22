@@ -36,83 +36,92 @@
 [#if VIEW_MODE=='add_camera'#]
 	[#inc add_camera.html#]
 [#else#]
-	[#if EMPTY_CAMS==1#]
-		<table class="table">
-			<thead>
-				<tr>
-					<th scope="col">camID</th>
-					<th scope="col">Данные</th>
-					<th scope="col">Настройки</th>
-					<th scope="col">Сводка</th>
-					<th scope="col">Реагировать на</th>
-					<th scope="col">Настройки</th>
-				</tr>
-			</thead>
-			<tbody>
-			[#begin PROPERTIES#]
-				<tr>
-					<td>[#ID#]</td>
-					<td>
-						[#CAM_NAME#]
-						<div style="font-size: 1rem;">[#DEVICE_ID#]</div>
-					</td>
-					<td>
-						<div style="margin: 0px;font-size: 1rem;">[#PATH#]</div>
-						<div style="margin: 0px;font-size: 1rem;">[#CODEC#], [#RESOLUTION#], [#BITRATE#] к/с, Длительность: [#SECOND#] сек.</div>
-					</td>
-					<td>
-						<div style="margin: 0px;font-size: 1rem;">Записей: [#TOTAL_VIDEO#] шт.<br>Последняя: [#LAST_VIDEO#]<br>
-						Занято: [#PATH_SIZE#] MB.
-						</div>
-					</td>
-					<td>
-						<div><i class="las la-stethoscope"></i> [#if LINKED_OBJECT1==""#]Не связана со свойством[#else#][#LINKED_OBJECT1#].[#LINKED_PROPERTY1#][#endif#]</div>
-						<div><i class="las la-stethoscope"></i> [#if LINKED_OBJECT2==""#]Не связана со свойством[#else#][#LINKED_OBJECT2#].[#LINKED_PROPERTY2#][#endif#]</div>
-					</td>
-					<td>
-						<form action="?" method="post" enctype="multipart/form-data" id="recordingForm_[#ID#]">
-							<input type="hidden" name="mode" value="recording">
-							<input type="hidden" name="view_mode" value="[#ID#]">
-						</form>
-						<form action="?" method="post" enctype="multipart/form-data" id="deleteForm_[#ID#]">
-							<input type="hidden" name="mode" value="delete_camera">
-							<input type="hidden" name="view_mode" value="[#ID#]">
-						</form>
-						<form action="?" method="post" enctype="multipart/form-data" id="deleteFiles_[#ID#]">
-							<input type="hidden" name="mode" value="delete_files">
-							<input type="hidden" name="view_mode" value="[#ID#]">
-						</form>
-						<button type="button" title="Имитировать сработку" onclick="document.getElementById('recordingForm_[#ID#]').submit();" class="btn btn-default" style="margin-top: 3px;"><i class="las la-bell"></i></button>
-						<button type="button" title="Удалить файлы камеры" onclick="if(confirm('Удалить записи с камеры [#CAM_NAME#]?')) {document.getElementById('deleteFiles_[#ID#]').submit();}" class="btn btn-warning" style="margin-top: 3px;"><i class="las la-trash"></i></button>
-						<button type="button" title="Удалить камеру" onclick="if(confirm('Удалить камеру [#CAM_NAME#]?')) {document.getElementById('deleteForm_[#ID#]').submit();}" class="btn btn-danger" style="margin-top: 3px;"><i class="las la-times-circle"></i></button>
-					</td>
-				</tr>
-			[#end PROPERTIES#]
-			</tbody>
-		</table>
+	[#if MODE=='edit_camera'#]
+		[#inc edit_camera.html#]
 	[#else#]
-	<div class="row" style="border: 1px solid #e7e7e7;border-radius: 5px;padding-top: 10px;padding-bottom: 10px;margin-top: 15px;">
-		<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-center">
-			<div style="font-size: 15rem;"><i class="las la-video"></i></div>
-			<h4 style="margin: 0px;">Привет! Давай настроим модуль!</h4>
-			<p>Модуль позволяет захватывать видео с веб камер подключенных к серверу MJDM.<br>
-			В качестве программы для захвата картинки используется FFMPEG.<br>
-			Мы уже проверили, есть ли у тебя на сервере FFMPEG и вот, что получили:<br>
-			[#if FFMPEG_STATUS==1#]
-			<span style="color: green;font-weight: bold;"><i class="las la-check-circle" style="font-size: 1.9rem;vertical-align: top;"></i> FFMPEG установлен, можно пользоваться модулем!</span>
-			[#else#]
-			<span style="color: red;font-weight: bold;"><i class="las la-times-circle" style="font-size: 1.9rem;vertical-align: top;"></i> Неудалось обнаружить FFMPEG, установите его и попробуйте снова!</span>
-			[#endif#]
-			</p>
-			<br>
-			<form action="?" method="post" enctype="multipart/form-data">
-				<button type="submit" class="btn btn-success"><i class="las la-plus"></i> Новая камера</button>
-				<input type="hidden" name="view_mode" value="add_camera">
-			</form>
-			<br>
-			<br>
+		[#if EMPTY_CAMS==1#]
+			<table class="table">
+				<thead>
+					<tr>
+						<th scope="col">camID</th>
+						<th scope="col">Данные</th>
+						<th scope="col">Настройки</th>
+						<th scope="col">Сводка</th>
+						<th scope="col">Реагировать на</th>
+						<th scope="col">Настройки</th>
+					</tr>
+				</thead>
+				<tbody>
+				[#begin PROPERTIES#]
+					<tr>
+						<td>[#ID#]</td>
+						<td>
+							[#CAM_NAME#]
+							<div style="font-size: 1rem;">[#DEVICE_ID#]</div>
+						</td>
+						<td>
+							<div style="margin: 0px;font-size: 1rem;">[#PATH#]</div>
+							<div style="margin: 0px;font-size: 1rem;">[#CODEC#], [#RESOLUTION#], [#BITRATE#] к/с, Длительность: [#SECOND#] сек.</div>
+						</td>
+						<td>
+							<div style="margin: 0px;font-size: 1rem;">Записей: [#TOTAL_VIDEO#] шт.<br>Последняя: [#LAST_VIDEO#]<br>
+							Занято: [#PATH_SIZE#] MB.
+							</div>
+						</td>
+						<td>
+							<div style="font-size: 1rem;"><i class="las la-stethoscope"></i> [#if LINKED_OBJECT1==""#]Не связана со свойством[#else#][#LINKED_OBJECT1#].[#LINKED_PROPERTY1#][#endif#]</div>
+							[#if LINKED_OBJECT2!=""#]<div style="font-size: 1rem;"><i class="las la-stethoscope"></i> [#LINKED_OBJECT2#].[#LINKED_PROPERTY2#]</div>[#endif#]
+						</td>
+						<td>
+							<form action="?" method="post" enctype="multipart/form-data" id="recordingForm_[#ID#]">
+								<input type="hidden" name="mode" value="recording">
+								<input type="hidden" name="view_mode" value="[#ID#]">
+							</form>
+							<form action="?" method="post" enctype="multipart/form-data" id="deleteForm_[#ID#]">
+								<input type="hidden" name="mode" value="delete_camera">
+								<input type="hidden" name="view_mode" value="[#ID#]">
+							</form>
+							<form action="?" method="post" enctype="multipart/form-data" id="deleteFiles_[#ID#]">
+								<input type="hidden" name="mode" value="delete_files">
+								<input type="hidden" name="view_mode" value="[#ID#]">
+							</form>
+							<form action="?" method="post" enctype="multipart/form-data" id="editcam_[#ID#]">
+								<input type="hidden" name="mode" value="edit_camera">
+								<input type="hidden" name="view_mode" value="[#ID#]">
+							</form>
+							<button type="button" title="Имитировать сработку" onclick="document.getElementById('recordingForm_[#ID#]').submit();" class="btn btn-default" style="margin-top: 3px;"><i class="las la-bell"></i></button>
+							<button type="button" title="Изменить настройки" onclick="document.getElementById('editcam_[#ID#]').submit();" class="btn btn-default" style="margin-top: 3px;"><i class="las la-edit"></i></button>
+							<button type="button" title="Удалить файлы камеры" onclick="if(confirm('Удалить записи с камеры [#CAM_NAME#]?')) {document.getElementById('deleteFiles_[#ID#]').submit();}" class="btn btn-warning" style="margin-top: 3px;"><i class="las la-trash"></i></button>
+							<button type="button" title="Удалить камеру" onclick="if(confirm('Удалить камеру [#CAM_NAME#]?')) {document.getElementById('deleteForm_[#ID#]').submit();}" class="btn btn-danger" style="margin-top: 3px;"><i class="las la-times-circle"></i></button>
+						</td>
+					</tr>
+				[#end PROPERTIES#]
+				</tbody>
+			</table>
+		[#else#]
+		<div class="row" style="border: 1px solid #e7e7e7;border-radius: 5px;padding-top: 10px;padding-bottom: 10px;margin-top: 15px;">
+			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 text-center">
+				<div style="font-size: 15rem;"><i class="las la-video"></i></div>
+				<h4 style="margin: 0px;">Привет! Давай настроим модуль!</h4>
+				<p>Модуль позволяет захватывать видео с веб камер подключенных к серверу MJDM.<br>
+				В качестве программы для захвата картинки используется FFMPEG.<br>
+				Мы уже проверили, есть ли у тебя на сервере FFMPEG и вот, что получили:<br>
+				[#if FFMPEG_STATUS==1#]
+				<span style="color: green;font-weight: bold;"><i class="las la-check-circle" style="font-size: 1.9rem;vertical-align: top;"></i> FFMPEG установлен, можно пользоваться модулем!</span>
+				[#else#]
+				<span style="color: red;font-weight: bold;"><i class="las la-times-circle" style="font-size: 1.9rem;vertical-align: top;"></i> Неудалось обнаружить FFMPEG, установите его и попробуйте снова!</span>
+				[#endif#]
+				</p>
+				<br>
+				<form action="?" method="post" enctype="multipart/form-data">
+					<button type="submit" class="btn btn-success"><i class="las la-plus"></i> Новая камера</button>
+					<input type="hidden" name="view_mode" value="add_camera">
+				</form>
+				<br>
+				<br>
+			</div>
 		</div>
-	</div>
+		[#endif#]
 	[#endif#]
 [#endif#]
 <div class="row" style="margin-top: 40px;">
