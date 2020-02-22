@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '1.7';
+		$this->version = '1.8';
 		$this->checkInstalled();
 	}
 
@@ -359,7 +359,7 @@ class webcam_recorder extends module {
 				foreach($this->scanFiles as $key => $value) {
 					$dateSrav = explode('_', $this->scanFiles[$key]);
 					if($dateSrav[0] == $this->date) {
-						array_push($this->arrayData, substr($data['PATH'], 13).'/'.$this->scanFiles[$key].'/');
+						array_push($this->arrayData, substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$this->scanFiles[$key].'/');
 						//+ итерация цикла
 						$this->iteration++;
 					}

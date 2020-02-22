@@ -19,12 +19,15 @@
 				explodeTrashMJDM = responce.split('<!--begin of');
 				responce = JSON.parse(explodeTrashMJDM[0]);
 				
-				if(responce.length != 0) { 
+				//console.log(responce);
+				if(responce.length != 0) {
 					$('#camera_history_show').html('');
-					for (var value in responce) {
+					console.log(responce);
+					for(var value in responce) {
 						nameSplit = responce[value].split('/');
+						
 						(iteration >= 1) ? html = $('#camera_history_show').html() : html = '';
-						$('#camera_history_show').html(html + '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-2 text-center" style="padding: 10px;" onclick="getCameraDataLoadName(\''+ nameSplit[5] +'\', \''+ responce[value] + 'video' +'\');"><img style="width: 100%;border-radius: 5px;" src="' + responce[value] + 'photo.jpg"><span>' + nameSplit[5] + '</span></div>');
+						$('#camera_history_show').html(html + '<div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-2 text-center" style="padding: 10px;" onclick="getCameraDataLoadName(\''+ nameSplit[nameSplit.length-2] +'\', \''+ responce[value] + 'video' +'\');"><img style="width: 100%;border-radius: 5px;" src="' + responce[value] + 'photo.jpg"><span>' + nameSplit[nameSplit.length-2] + '</span></div>');
 						iteration++;
 					}
 				} else {
