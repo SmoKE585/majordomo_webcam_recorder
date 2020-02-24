@@ -28,8 +28,8 @@
 			</select>
 			
 			<label style="margin-top: 15px;">Папка для записей</label>
-			<input type="text" class="form-control" style="outline: none;border-radius: 5px;" name="folderPath" title="Нельзя поменять путь для добавленной камеры" placeholder="Полный путь до папки, например: /var/www/html/cms/cached/webcam_recorder/cam1" value="[#PATH#]" readonly>
-			<div style="font-size: 1rem;border: 1px dotted #e7e7e7;background: rgba(255, 165, 0, 0.12);padding: 10px;margin-top: 10px;border-radius: 5px;"><i class="las la-info"></i> В этой папке модуль создаст папки с датами и в них будет помещать видео. Можете оставить пустым, тогда будет использован стандартный путь: <b>/var/www/html/cms/cached/webcam_recorder/cam_[ID]</b></div>
+			<input type="text" class="form-control" style="outline: none;border-radius: 5px;" name="folderPath" title="Нельзя поменять путь для добавленной камеры" placeholder="Полный путь до папки, например: <#DOCUMENT_ROOT#>/cms/cached/webcam_recorder/cam1" value="[#PATH#]" readonly>
+			<div style="font-size: 1rem;border: 1px dotted #e7e7e7;background: rgba(255, 165, 0, 0.12);padding: 10px;margin-top: 10px;border-radius: 5px;"><i class="las la-info"></i> В этой папке модуль создаст папки с датами и в них будет помещать видео. Можете оставить пустым, тогда будет использован стандартный путь: <b><#DOCUMENT_ROOT#>/cms/cached/webcam_recorder/cam_[ID]</b></div>
 			
 			<label style="margin-top: 15px;">Делать фото перед записью видео?</label>
 			<select class="form-control" name="takePhoto" style="outline: none;border-radius: 5px;">

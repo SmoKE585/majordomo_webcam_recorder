@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '1.8';
+		$this->version = '1.9';
 		$this->checkInstalled();
 	}
 
@@ -187,7 +187,7 @@ class webcam_recorder extends module {
 			
 			$this->config['EMPTY_CAMS'] = 1;
 			$this->saveConfig();
-					
+			
 			$this->redirect("?");
 		}
 		
@@ -290,7 +290,7 @@ class webcam_recorder extends module {
 		}
 		
 		//Генерируем команду *nix
-		$nixCommand_Video = 'sudo timeout -s INT 120s ffmpeg -y -f video4linux2 -i '.$data["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
+		$nixCommand_Video = 'sudo timeout -s INT 120s ffmpeg -y -f video4linux2 -i '.$data["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' -pix_fmt yuv420p '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
 		if($data["PHOTO"] == 1) {
 			$nixCommand_Photo = ';sudo timeout -s INT 60s ffmpeg -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg';
 			if(!is_dir($data['PATH'].'/last/')) {
