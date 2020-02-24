@@ -2,10 +2,17 @@
 	<div class="row" style="border: 1px solid #e7e7e7;border-radius: 5px;padding-top: 10px;padding-bottom: 10px;margin-top: 15px;">
 		<div class="col-md-6 col-md-offset-3">
 			<h4 style="border-bottom: 1px solid #e7e7e7;">Добавление новой камеры</h4>
-			<label>Имя камеры</label>
+			
+			<label>Тип камеры</label>
+			<select class="form-control" name="camtype" style="outline: none;border-radius: 5px;">
+				<option value="web">Веб камера подключенная через USB</option>
+				<option value="rtsp">RTSP камера</option>
+			</select>
+			
+			<label style="margin-top: 15px;">Имя камеры</label>
 			<input type="text" class="form-control" style="outline: none;border-radius: 5px;" name="cameraName" placeholder="Имя камеры, просто для удобства" value="" autofocus="">
 			
-			<label style="margin-top: 15px;">Устройство захвата <span style="color: red">(*)</span></label>
+			<label style="margin-top: 15px;">Устройство захвата или URL RTSP потока камеры <span style="color: red">(*)</span></label>
 			<input type="text" class="form-control" style="outline: none;border-radius: 5px;" name="deviceAddr" placeholder="Формат /dev/video1" value="">
 			<div style="font-size: 1rem;border: 1px dotted #e7e7e7;background: rgba(255, 165, 0, 0.12);padding: 10px;margin-top: 10px;border-radius: 5px;"><i class="las la-info"></i> Данные из вашей системы:<br>[#FFMPEG_VIDEO_DEV#]</div>
 			

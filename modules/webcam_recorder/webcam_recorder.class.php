@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '2.0';
+		$this->version = '2.1';
 		$this->checkInstalled();
 	}
 
@@ -102,14 +102,8 @@ class webcam_recorder extends module {
 			$this->redirect("?");
 		}
 		
-		if($this->view_mode == 'add_camera') {
-			$arrayDevice = explode('crw-', shell_exec('ls -l /dev/ | grep video'));
-			
-			foreach($arrayDevice as $value) {
-				if($value != '') $generateHint .= 'crw-'.$value.'<br>';
-			}
-			
-			$out['FFMPEG_VIDEO_DEV'] = $generateHint;
+		if($this->view_mode == 'add_camera' || $this->mode == 'edit_camera') {
+			$out['FFMPEG_VIDEO_DEV'] = $this->generateNoty();
 		}
 		
 		if($this->mode == 'edit_camera' && !empty($this->view_mode)) {
@@ -198,6 +192,7 @@ class webcam_recorder extends module {
 			$scan = scandir($dataInDB[$key]['PATH'], 1);
 			$out['PROPERTIES'][$key]['TOTAL_VIDEO'] = count($scan)-2;
 			$out['PROPERTIES'][$key]['LAST_VIDEO'] = $scan[2];
+			$out['PROPERTIES'][$key]['PATH_PREVIEW'] = substr($dataInDB[$key]['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT']));
 			
 			//Узнаем размер папки
 			$out['PROPERTIES'][$key]['PATH_SIZE'] = round($this->getFilesSize($dataInDB[$key]['PATH'])/1000000, 2);
@@ -208,6 +203,21 @@ class webcam_recorder extends module {
 		$out['EMPTY_CAMS'] = $this->config['EMPTY_CAMS'];
 		$out['VERSION_MODULE'] = $this->version;
 		$out['FFMPEG_STATUS'] = (shell_exec('ffmpeg -h')) ? 1 : 0;
+		
+		//Проверим на наличие новых калонок, УДАЛИ В БУДУЩЕМ
+		if(empty($dataInDB[0]['CAMTYPE'])) {
+			SQLExec("ALTER TABLE `webcam_recorder` ADD `CAMTYPE` varchar(10) NOT NULL DEFAULT 'new'");
+		}
+	}
+	
+	function generateNoty() {
+		$arrayDevice = explode('crw-', shell_exec('ls -l /dev/ | grep video'));
+			
+		foreach($arrayDevice as $value) {
+			if($value != '') $generateHint .= 'crw-'.$value.'<br>';
+		}
+		
+		return $generateHint;
 	}
 	
 	function rmRec($path) {
@@ -403,7 +413,6 @@ class webcam_recorder extends module {
 	}	
 	
 	function dbInstall($data = '') {
-
 		$data = <<<EOD
 webcam_recorder: ID int(10) unsigned NOT NULL auto_increment
 webcam_recorder: CAM_NAME varchar(100) NOT NULL DEFAULT ''
@@ -419,6 +428,7 @@ webcam_recorder: LINKED_PROPERTY1 varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: LINKED_OBJECT2 varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: LINKED_PROPERTY2 varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: REAKTON varchar(255) NOT NULL DEFAULT ''
+webcam_recorder: CAMTYPE varchar(10) NOT NULL DEFAULT ''
 webcam_recorder: TELEGRAMM varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: ADDTIME varchar(255) NOT NULL DEFAULT ''
 	
