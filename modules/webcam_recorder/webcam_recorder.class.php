@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '2.1';
+		$this->version = '2.2';
 		$this->checkInstalled();
 	}
 
@@ -428,7 +428,7 @@ webcam_recorder: LINKED_PROPERTY1 varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: LINKED_OBJECT2 varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: LINKED_PROPERTY2 varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: REAKTON varchar(255) NOT NULL DEFAULT ''
-webcam_recorder: CAMTYPE varchar(10) NOT NULL DEFAULT ''
+webcam_recorder: CAMTYPE varchar(10) NOT NULL DEFAULT 'new'
 webcam_recorder: TELEGRAMM varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: ADDTIME varchar(255) NOT NULL DEFAULT ''
 	
