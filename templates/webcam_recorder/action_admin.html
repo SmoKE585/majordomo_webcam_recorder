@@ -14,7 +14,7 @@
 			[#if FFMPEG_STATUS==1#]
 				<li><a href="#" target="_blank" style="color: green;"><i class="las la-check-circle" style="font-size: 1.9rem;vertical-align: top;"></i> FFMPEG</a></li>
 			[#else#]
-				<li><a href="#" target="_blank" style="color: red;"><i class="las la-times-circle" style="font-size: 1.9rem;vertical-align: top;"></i> FFMPEG</a></li>
+				<li><a href="#" target="_blank" style="color: red;"><i class="las la-times-circle" style="font-size: 1.9rem;vertical-align: top;"></i> Не установлен FFMPEG</a></li>
 			[#endif#]
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
@@ -45,7 +45,6 @@
 				<thead>
 					<tr>
 						<th scope="col"></th>
-						<th scope="col">camID</th>
 						<th scope="col">Данные</th>
 						<th scope="col">Настройки</th>
 						<th scope="col">Сводка</th>
@@ -57,9 +56,8 @@
 				[#begin PROPERTIES#]
 					<tr>
 						<td><a href="javascript://" onClick="$('#photoModalLink').attr('src', '[#PATH_PREVIEW#]/[#LAST_VIDEO#]/photo.jpg');$('#prewPhoto').modal('show');"><img src="[#PATH_PREVIEW#]/[#LAST_VIDEO#]/photo.jpg" style="width: 50px;border-radius: 10px;"></a></td>
-						<td>[#ID#]</td>
 						<td>
-							[#CAM_NAME#]
+							[#CAM_NAME#] (ID: [#ID#])
 							<div style="font-size: 1rem;">[#DEVICE_ID#]</div>
 						</td>
 						<td>
@@ -93,10 +91,20 @@
 								<input type="hidden" name="mode" value="edit_camera">
 								<input type="hidden" name="view_mode" value="[#ID#]">
 							</form>
-							<button type="button" title="Имитировать сработку" onclick="document.getElementById('recordingForm_[#ID#]').submit();" class="btn btn-default" style="margin-top: 3px;"><i class="las la-bell"></i></button>
-							<button type="button" title="Изменить настройки" onclick="document.getElementById('editcam_[#ID#]').submit();" class="btn btn-default" style="margin-top: 3px;"><i class="las la-edit"></i></button>
-							<button type="button" title="Удалить файлы камеры" onclick="if(confirm('Удалить записи с камеры [#CAM_NAME#]?')) {document.getElementById('deleteFiles_[#ID#]').submit();}" class="btn btn-warning" style="margin-top: 3px;"><i class="las la-trash"></i></button>
-							<button type="button" title="Удалить камеру" onclick="if(confirm('Удалить камеру [#CAM_NAME#]?')) {document.getElementById('deleteForm_[#ID#]').submit();}" class="btn btn-danger" style="margin-top: 3px;"><i class="las la-times-circle"></i></button>
+							
+							<div id="noneDangerBtn_[#ID#]">
+								<button type="button" title="Информация" onclick="$('#insertModalFfmpegString').text('[#FFMPEG_STRING_GENERATE#]');$('#infoModal').modal('show');" class="btn btn-info" style="margin-top: 3px;padding: 3px 6px;"><i class="las la-question-circle" style="font-size: 2.4rem;"></i></button>
+								<button type="button" title="Имитировать сработку" onclick="document.getElementById('recordingForm_[#ID#]').submit();" class="btn btn-default" style="margin-top: 3px;padding: 3px 6px;"><i class="las la-bell" style="font-size: 2.4rem;"></i></button>
+								<button type="button" title="Изменить настройки" onclick="document.getElementById('editcam_[#ID#]').submit();" class="btn btn-default" style="margin-top: 3px;padding: 3px 6px;"><i class="las la-edit" style="font-size: 2.4rem;"></i></button>
+								
+								<button type="button" title="Опасные действия" onclick="$('#noneDangerBtn_[#ID#]').toggle();$('#dangerBtn_[#ID#]').toggle();" class="btn btn-default" style="margin-top: 3px;padding: 3px 6px;"><i class="la la-ellipsis-h" style="font-size: 2.4rem;"></i></button>
+							</div>
+							<div  id="dangerBtn_[#ID#]" style="display:none;text-align: center;border: 1px solid red;padding: 5px;border-radius: 10px;background: #ff00001c;">
+								<div style="font-weight: bold;">Внимание! Опасные действия!</div>
+								<button type="button" title="Удалить файлы камеры" onclick="if(confirm('Удалить записи с камеры [#CAM_NAME#]?')) {document.getElementById('deleteFiles_[#ID#]').submit();}" class="btn btn-warning" style="margin-top: 3px;padding: 3px 6px;"><i class="las la-trash" style="font-size: 2.4rem;"></i></button>
+								<button type="button" title="Удалить камеру" onclick="if(confirm('Удалить камеру [#CAM_NAME#]?')) {document.getElementById('deleteForm_[#ID#]').submit();}" class="btn btn-danger" style="margin-top: 3px;padding: 3px 6px;"><i class="las la-times-circle" style="font-size: 2.4rem;"></i></button>
+								<button type="button" title="Скрыть" onclick="$('#noneDangerBtn_[#ID#]').toggle();$('#dangerBtn_[#ID#]').toggle();" class="btn btn-default" style="margin-top: 3px;padding: 3px 6px;"><i class="la la-undo-alt" style="font-size: 2.4rem;"></i></button>
+							</div>
 						</td>
 					</tr>
 				[#end PROPERTIES#]
@@ -141,6 +149,31 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="infoModal" class="modal fade">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+				<div class="modal-header">
+				<h3 class="modal-title">Помощь</h3>
+			</div>
+			<div class="modal-body">
+				<div style="font-size: 1.3rem;">Для интеграции в сцены предусмотрен следующий код:</div>
+				<div style="margin-top: 10px;background-color: #f9f2f4;padding: 10px;border-radius: 10px;border: 1px solid #f1acac;font-size: 1.3rem;color: #c7254e;" id="codeModal">
+					* Обязательно уберите пробел после #, иначе работать не будет<br><br>
+					[# module name="webcam_recorder" mode="arhive" view_mode="hidecontrols,showlast"#]
+				</div>
+				<div style="font-size: 1.3rem;margin-top: 10px;">Этот код выведет последнее записаное видео и камшот. Если не указывать параметры view_mode="hidecontrols,showlast" то будет доступно все управление архивом. Если указать view_mode="onlylastphoto", то модуль вернет последний камшот без надписей и прочего.</div>
+				<hr>
+				<div style="font-size: 1.3rem;"><b>Примерная</b> строка ffmpeg, которую генерирует модуль для ручной проверки. Сформирована на основании ваших настроек:</div>
+				<div style="margin-top: 10px;background-color: #f9f2f4;padding: 10px;border-radius: 10px;border: 1px solid #f1acac;font-size: 1.3rem;color: #c7254e;" id="codeModal">
+					<span id="insertModalFfmpegString"></span>
+				</div>
+			</div>
+			<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
 			</div>
 		</div>
 	</div>

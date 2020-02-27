@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '2.3';
+		$this->version = '2.4';
 		$this->checkInstalled();
 	}
 
@@ -193,6 +193,35 @@ class webcam_recorder extends module {
 			$out['PROPERTIES'][$key]['TOTAL_VIDEO'] = count($scan)-2;
 			$out['PROPERTIES'][$key]['LAST_VIDEO'] = $scan[2];
 			$out['PROPERTIES'][$key]['PATH_PREVIEW'] = substr($dataInDB[$key]['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT']));
+			
+			switch($dataInDB[$key]["SECOND"]) {
+				case '5':
+					$durationRecord = '00:00:05';
+					break;
+				case '10':
+					$durationRecord = '00:00:10';
+					break;
+				case '15':
+					$durationRecord = '00:00:15';
+					break;
+				case '25':
+					$durationRecord = '00:00:25';
+					break;
+				case '40':
+					$durationRecord = '00:00:40';
+					break;
+				case '60':
+					$durationRecord = '00:01:00';
+					break;
+				case '120':
+					$durationRecord = '00:02:00';
+					break;
+				case '600':
+					$durationRecord = '00:05:00';
+					break;
+			}
+			
+			$out['PROPERTIES'][$key]['FFMPEG_STRING_GENERATE'] = 'sudo timeout -s INT 120s ffmpeg -y -f video4linux2 -i '.$dataInDB[$key]["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$dataInDB[$key]['BITRATE'].' -s '.$dataInDB[$key]["RESOLUTION"].' -c:v '.$dataInDB[$key]['CODEC'].' -pix_fmt yuv420p '.$dataInDB[$key]['PATH'].'/'.date('dmY_His', time()).'_'.rand(1000, 9999).'/video.mp4';
 			
 			//Узнаем размер папки
 			$out['PROPERTIES'][$key]['PATH_SIZE'] = round($this->getFilesSize($dataInDB[$key]['PATH'])/1000000, 2);
