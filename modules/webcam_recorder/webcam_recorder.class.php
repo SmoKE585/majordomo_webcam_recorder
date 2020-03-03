@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '2.5';
+		$this->version = '2.6';
 		$this->checkInstalled();
 	}
 
@@ -88,6 +88,11 @@ class webcam_recorder extends module {
 		
 		if($this->mode == 'fixdberror') {
 			SQLExec("ALTER TABLE `webcam_recorder` ADD `CAMTYPE` varchar(10) NOT NULL DEFAULT ''");
+			$this->redirect("?");
+		}
+		
+		if($this->mode == 'fixErrorFiles') {
+			shell_exec('sudo systemctl stop ffserver');
 			$this->redirect("?");
 		}
 		
@@ -197,7 +202,7 @@ class webcam_recorder extends module {
 		$out['PROPERTIES'] = $dataInDB;
 		foreach($dataInDB as $key => $value) {
 			$scan = scandir($dataInDB[$key]['PATH'], 1);
-			$out['PROPERTIES'][$key]['TOTAL_VIDEO'] = count($scan)-2;
+			$out['PROPERTIES'][$key]['TOTAL_VIDEO'] = count($scan)-3;
 			$out['PROPERTIES'][$key]['LAST_VIDEO'] = $scan[2];
 			$out['PROPERTIES'][$key]['PATH_PREVIEW'] = substr($dataInDB[$key]['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT']));
 			
@@ -234,7 +239,7 @@ class webcam_recorder extends module {
 				$camType = ' -f video4linux2 ';
 			}
 			
-			$out['PROPERTIES'][$key]['FFMPEG_STRING_GENERATE'] = 'sudo timeout -s INT 120s ffmpeg -y'.$camType.'-i '.$dataInDB[$key]["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$dataInDB[$key]['BITRATE'].' -s '.$dataInDB[$key]["RESOLUTION"].' -c:v '.$dataInDB[$key]['CODEC'].' -pix_fmt yuv420p '.$dataInDB[$key]['PATH'].'/'.date('dmY_His', time()).'_'.rand(1000, 9999).'/video.mp4';
+			$out['PROPERTIES'][$key]['FFMPEG_STRING_GENERATE'] = 'sudo timeout -s INT 60s ffmpeg -y'.$camType.'-i '.$dataInDB[$key]["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$dataInDB[$key]['BITRATE'].' -s '.$dataInDB[$key]["RESOLUTION"].' -c:v '.$dataInDB[$key]['CODEC'].' -pix_fmt yuv420p '.$dataInDB[$key]['PATH'].'/'.date('dmY_His', time()).'_'.rand(1000, 9999).'/video.mp4';
 			
 			//Узнаем размер папки
 			$out['PROPERTIES'][$key]['PATH_SIZE'] = round($this->getFilesSize($dataInDB[$key]['PATH'])/1000000, 2);
@@ -344,9 +349,9 @@ class webcam_recorder extends module {
 			$camType = ' -f video4linux2 ';
 		}
 		
-		$nixCommand_Video = 'sudo timeout -s INT 120s ffmpeg -y'.$camType.'-i '.$data["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' -pix_fmt yuv420p '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
+		$nixCommand_Video = 'sudo timeout -s INT 60s ffmpeg -y'.$camType.'-i '.$data["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' -pix_fmt yuv420p '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
 		if($data["PHOTO"] == 1) {
-			$nixCommand_Photo = ';sudo timeout -s INT 60s ffmpeg -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg';
+			$nixCommand_Photo = ';sudo timeout -s INT 30s ffmpeg -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg';
 			if(!is_dir($data['PATH'].'/last/')) {
 				$this->createFolder($data['PATH'].'/last/');
 			}

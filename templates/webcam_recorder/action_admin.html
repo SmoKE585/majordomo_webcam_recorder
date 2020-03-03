@@ -17,6 +17,7 @@
 				<li style="border-right: 1px solid #e7e7e7;"><a href="#" target="_blank" style="color: red;"><i class="las la-times-circle" style="font-size: 1.9rem;vertical-align: top;"></i> Не установлен FFMPEG</a></li>
 			[#endif#]
 			<li style="border-right: 1px solid #e7e7e7;"><a href="javascript://" onclick="$('#infoReloadModule').modal('show');" style="color: red;"><i class="las la-bug" style="font-size: 1.9rem;vertical-align: top;"></i> Ошибка после обновления?</a></li>
+			<li style="border-right: 1px solid #e7e7e7;"><a href="javascript://" onclick="if(confirm('Если у вас не работает запись или появляются битые файлы - нужно перезагрузить FFSERVER. Если вы нажмете ОК, то модуль это сделает.')) {alert('Выключаем FFSERVER. Через пару секунд попробуйте записать видео!'); document.getElementById('fixErrorFiles').submit();}"><i class="las la-video-slash" style="font-size: 1.9rem;vertical-align: top;"></i> Битые файлы?</a></li>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
 			<li style="border-right: 1px solid #e7e7e7;"><a href="https://mjdm.ru/forum/viewtopic.php?f=5&t=6964#p114913" target="_blank" style="color: #ff4f67;"><img src="/templates/webcam_recorder/img/like.png" style="width: 19px;vertical-align: sub;"> Нравится? Ставь лайк!</a></li>
@@ -94,7 +95,7 @@
 							</form>
 							
 							<div id="noneDangerBtn_[#ID#]">
-								<button type="button" title="Информация" onclick="$('#insertModalFfmpegString').text('[#FFMPEG_STRING_GENERATE#]');$('#infoModal').modal('show');" class="btn btn-info" style="margin-top: 3px;padding: 3px 6px;"><i class="las la-question-circle" style="font-size: 2.4rem;"></i></button>
+								<button type="button" title="Информация" onclick="$('#insertModalFfmpegString').text('[#FFMPEG_STRING_GENERATE#]');$('#insertModalCamID').text('[#ID#]');$('#infoModal').modal('show');" class="btn btn-info" style="margin-top: 3px;padding: 3px 6px;"><i class="las la-question-circle" style="font-size: 2.4rem;"></i></button>
 								<button type="button" title="Имитировать сработку" onclick="document.getElementById('recordingForm_[#ID#]').submit();" class="btn btn-default" style="margin-top: 3px;padding: 3px 6px;"><i class="las la-bell" style="font-size: 2.4rem;"></i></button>
 								<button type="button" title="Изменить настройки" onclick="document.getElementById('editcam_[#ID#]').submit();" class="btn btn-default" style="margin-top: 3px;padding: 3px 6px;"><i class="las la-edit" style="font-size: 2.4rem;"></i></button>
 								
@@ -172,6 +173,13 @@
 				<div style="margin-top: 10px;background-color: #f9f2f4;padding: 10px;border-radius: 10px;border: 1px solid #f1acac;font-size: 1.3rem;color: #c7254e;" id="codeModal">
 					<span id="insertModalFfmpegString"></span>
 				</div>
+				<hr>
+				<div style="font-size: 1.3rem;">Если вы хотите запускать запись из сценариев - используйте следующий код:</div>
+				<div style="margin-top: 10px;background-color: #f9f2f4;padding: 10px;border-radius: 10px;border: 1px solid #f1acac;font-size: 1.3rem;color: #c7254e;" id="codeModal">
+					include(DIR_MODULES . 'webcam_recorder/webcam_recorder.class.php');<br>
+					$record = new webcam_recorder();<br>
+					$record->recording("<span id="insertModalCamID"></span>");
+				</div>
 			</div>
 			<div class="modal-footer">
 			<button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
@@ -205,3 +213,6 @@
 		</div>
 	</div>
 </div>
+<form action="?" method="post" enctype="multipart/form-data" id="fixErrorFiles">
+	<input type="hidden" name="mode" value="fixErrorFiles">
+</form>
