@@ -1,25 +1,26 @@
 <nav class="navbar navbar-default">
 	<div class="container-fluid">
-	  <div class="navbar-header">
+	  <div class="navbar-header" style="border-right: 1px solid #e7e7e7;">
 		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
 		  <span class="sr-only">Toggle navigation</span>
 		  <span class="icon-bar"></span>
 		  <span class="icon-bar"></span>
 		  <span class="icon-bar"></span>
 		</button>
-			<a class="navbar-brand" href="?"><i class="las la-video" style="font-size: 2rem;vertical-align: bottom;"></i> WEBCam Recorder</a>
+		<a class="navbar-brand" href="?"><i class="las la-video" style="font-size: 2rem;vertical-align: bottom;"></i> WEBCam Recorder</a>
 	  </div>
 	  <div id="navbar" class="navbar-collapse collapse">
 		<ul class="nav navbar-nav">
 			[#if FFMPEG_STATUS==1#]
-				<li><a href="#" target="_blank" style="color: green;"><i class="las la-check-circle" style="font-size: 1.9rem;vertical-align: top;"></i> FFMPEG</a></li>
+				<li style="border-right: 1px solid #e7e7e7;"><a href="#" target="_blank" style="color: green;"><i class="las la-check-circle" style="font-size: 1.9rem;vertical-align: top;"></i> FFMPEG</a></li>
 			[#else#]
-				<li><a href="#" target="_blank" style="color: red;"><i class="las la-times-circle" style="font-size: 1.9rem;vertical-align: top;"></i> Не установлен FFMPEG</a></li>
+				<li style="border-right: 1px solid #e7e7e7;"><a href="#" target="_blank" style="color: red;"><i class="las la-times-circle" style="font-size: 1.9rem;vertical-align: top;"></i> Не установлен FFMPEG</a></li>
 			[#endif#]
+			<li style="border-right: 1px solid #e7e7e7;"><a href="javascript://" onclick="$('#infoReloadModule').modal('show');" style="color: red;"><i class="las la-bug" style="font-size: 1.9rem;vertical-align: top;"></i> Ошибка после обновления?</a></li>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
-			<li><a href="https://mjdm.ru/forum/viewtopic.php?f=5&t=6960" target="_blank" style="color: #ff4f67;"><img src="/templates/webcam_recorder/img/like.png" style="width: 19px;vertical-align: sub;"> Нравится? Ставь лайк!</a></li>
-			<li><a href="https://mjdm.ru/forum/viewtopic.php?f=5&t=6960" target="_blank"><i class="las la-comment-dots" style="font-size: 1.9rem;vertical-align: top;"></i> Обсуждение на форуме</a></li>
+			<li style="border-right: 1px solid #e7e7e7;"><a href="https://mjdm.ru/forum/viewtopic.php?f=5&t=6964#p114913" target="_blank" style="color: #ff4f67;"><img src="/templates/webcam_recorder/img/like.png" style="width: 19px;vertical-align: sub;"> Нравится? Ставь лайк!</a></li>
+			<li><a href="https://mjdm.ru/forum/viewtopic.php?f=5&t=6964#p114913" target="_blank"><i class="las la-comment-dots" style="font-size: 1.9rem;vertical-align: top;"></i> Обсуждение на форуме</a></li>
 		</ul>
 	  </div><!--/.nav-collapse -->
 	</div><!--/.container-fluid -->
@@ -63,7 +64,7 @@
 						<td>
 							<div style="margin: 0px;font-size: 1rem;">[#PATH#]</div>
 							<div style="margin: 0px;font-size: 1rem;">[#CODEC#], [#RESOLUTION#], [#BITRATE#] к/с, Длительность: [#SECOND#] сек.</div>
-							<div style="margin: 0px;font-size: 1rem;">Тип камеры: [#CAMTYPE#]</div>
+							<div style="margin: 0px;font-size: 1rem;">Тип камеры: [#if CAMTYPE!=''#][#CAMTYPE#][#else#]<span style="color: red;">? (Не указан, по умолчанию - WEBCam)</span>[#endif#]</div>
 						</td>
 						<td>
 							<div style="margin: 0px;font-size: 1rem;">Записей: [#TOTAL_VIDEO#] шт.<br>Последняя: [#LAST_VIDEO#]<br>
@@ -170,6 +171,32 @@
 				<div style="font-size: 1.3rem;"><b>Примерная</b> строка ffmpeg, которую генерирует модуль для ручной проверки. Сформирована на основании ваших настроек:</div>
 				<div style="margin-top: 10px;background-color: #f9f2f4;padding: 10px;border-radius: 10px;border: 1px solid #f1acac;font-size: 1.3rem;color: #c7254e;" id="codeModal">
 					<span id="insertModalFfmpegString"></span>
+				</div>
+			</div>
+			<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="infoReloadModule" class="modal fade">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+				<div class="modal-header">
+				<h3 class="modal-title">Ошибка после обновления</h3>
+			</div>
+			<div class="modal-body">
+				<div style="font-size: 1.3rem;">
+					3 марта я обновил модуль, появилась возможность записывать видео с RTSP камер. Для этого необходимо было добавить еще 1 столбец в БД. В виду того, что я не могу понять как это делать без удаления модуля, 
+					для того, чтобы все заработало - нужно удалить и заного установить модуль.
+					<hr>
+					Хотя, мы можем попробовать сделать это всего за 1 клик. Попробуйте:
+					<center>
+						<form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
+							<input type="hidden" name="mode" value="fixdberror"> 
+							<center style="margin-top: 25px;"><button type="submit" class="btn btn-success"><i class="las la-magic"></i> Вжух! Починить таблицу!</button></center>
+						</form>
+					</center>
 				</div>
 			</div>
 			<div class="modal-footer">

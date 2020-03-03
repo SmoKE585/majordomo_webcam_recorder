@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '2.4';
+		$this->version = '2.5';
 		$this->checkInstalled();
 	}
 
@@ -86,6 +86,11 @@ class webcam_recorder extends module {
 			$this->redirect("?");
 		}
 		
+		if($this->mode == 'fixdberror') {
+			SQLExec("ALTER TABLE `webcam_recorder` ADD `CAMTYPE` varchar(10) NOT NULL DEFAULT ''");
+			$this->redirect("?");
+		}
+		
 		if($this->mode == 'delete_camera' && !empty($this->view_mode)) {
 			//Удаляем файлы
 			$data = SQLSelectOne("SELECT * FROM `webcam_recorder` WHERE ID = '".dbSafe($this->view_mode)."' ORDER BY ID");
@@ -125,6 +130,7 @@ class webcam_recorder extends module {
 			global $linked_object2;
 			global $linked_property2;
 			global $reacktOn;
+			global $camType;
 			
 			$rand = rand(1000, 9999);
 			
@@ -152,6 +158,7 @@ class webcam_recorder extends module {
 			if($linked_property1 != $linked_property2) $array['LINKED_PROPERTY2'] = $linked_property2;
 			$array['ADDTIME'] = date('d.m.Y H:i:s');
 			$array['REAKTON'] = $reacktOn;
+			$array['CAMTYPE'] = $camType;
 			
 			if ($array['LINKED_OBJECT1'] && $array['LINKED_PROPERTY1']) {
 				addLinkedProperty($array['LINKED_OBJECT1'], $array['LINKED_PROPERTY1'], $this->name);
@@ -221,10 +228,17 @@ class webcam_recorder extends module {
 					break;
 			}
 			
-			$out['PROPERTIES'][$key]['FFMPEG_STRING_GENERATE'] = 'sudo timeout -s INT 120s ffmpeg -y -f video4linux2 -i '.$dataInDB[$key]["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$dataInDB[$key]['BITRATE'].' -s '.$dataInDB[$key]["RESOLUTION"].' -c:v '.$dataInDB[$key]['CODEC'].' -pix_fmt yuv420p '.$dataInDB[$key]['PATH'].'/'.date('dmY_His', time()).'_'.rand(1000, 9999).'/video.mp4';
+			if($dataInDB[$key]['CAMTYPE'] == 'rtsp') {
+				$camType = ' ';
+			} else {
+				$camType = ' -f video4linux2 ';
+			}
+			
+			$out['PROPERTIES'][$key]['FFMPEG_STRING_GENERATE'] = 'sudo timeout -s INT 120s ffmpeg -y'.$camType.'-i '.$dataInDB[$key]["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$dataInDB[$key]['BITRATE'].' -s '.$dataInDB[$key]["RESOLUTION"].' -c:v '.$dataInDB[$key]['CODEC'].' -pix_fmt yuv420p '.$dataInDB[$key]['PATH'].'/'.date('dmY_His', time()).'_'.rand(1000, 9999).'/video.mp4';
 			
 			//Узнаем размер папки
 			$out['PROPERTIES'][$key]['PATH_SIZE'] = round($this->getFilesSize($dataInDB[$key]['PATH'])/1000000, 2);
+			$out['PROPERTIES'][$key]['CAMTYPE'] = $dataInDB[$key]['CAMTYPE'];
 		}
 
 		//Флаг на то, есть ли камеры
@@ -232,11 +246,6 @@ class webcam_recorder extends module {
 		$out['EMPTY_CAMS'] = $this->config['EMPTY_CAMS'];
 		$out['VERSION_MODULE'] = $this->version;
 		$out['FFMPEG_STATUS'] = (shell_exec('ffmpeg -h')) ? 1 : 0;
-		
-		//Проверим на наличие новых калонок, УДАЛИ В БУДУЩЕМ
-		// if(empty($dataInDB[0]['CAMTYPE'])) {
-			// SQLExec("ALTER TABLE `webcam_recorder` ADD `CAMTYPE` varchar(10) NOT NULL DEFAULT 'new'");
-		// }
 	}
 	
 	function generateNoty() {
@@ -329,7 +338,13 @@ class webcam_recorder extends module {
 		}
 		
 		//Генерируем команду *nix
-		$nixCommand_Video = 'sudo timeout -s INT 120s ffmpeg -y -f video4linux2 -i '.$data["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' -pix_fmt yuv420p '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
+		if($data["CAMTYPE"] == 'rtsp') {
+			$camType = ' ';
+		} else {
+			$camType = ' -f video4linux2 ';
+		}
+		
+		$nixCommand_Video = 'sudo timeout -s INT 120s ffmpeg -y'.$camType.'-i '.$data["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' -pix_fmt yuv420p '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
 		if($data["PHOTO"] == 1) {
 			$nixCommand_Photo = ';sudo timeout -s INT 60s ffmpeg -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg';
 			if(!is_dir($data['PATH'].'/last/')) {
@@ -458,6 +473,7 @@ webcam_recorder: LINKED_OBJECT2 varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: LINKED_PROPERTY2 varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: REAKTON varchar(255) NOT NULL DEFAULT ''
 webcam_recorder: TELEGRAMM varchar(255) NOT NULL DEFAULT ''
+webcam_recorder: CAMTYPE varchar(10) NOT NULL DEFAULT ''
 webcam_recorder: ADDTIME varchar(255) NOT NULL DEFAULT ''
 	
 EOD;
