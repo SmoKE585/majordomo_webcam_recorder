@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '2.6';
+		$this->version = '2.7';
 		$this->checkInstalled();
 	}
 
@@ -136,6 +136,7 @@ class webcam_recorder extends module {
 			global $linked_property2;
 			global $reacktOn;
 			global $camType;
+			global $telegram;
 			
 			$rand = rand(1000, 9999);
 			
@@ -164,6 +165,7 @@ class webcam_recorder extends module {
 			$array['ADDTIME'] = date('d.m.Y H:i:s');
 			$array['REAKTON'] = $reacktOn;
 			$array['CAMTYPE'] = $camType;
+			$array['TELEGRAMM'] = $telegram;
 			
 			if ($array['LINKED_OBJECT1'] && $array['LINKED_PROPERTY1']) {
 				addLinkedProperty($array['LINKED_OBJECT1'], $array['LINKED_PROPERTY1'], $this->name);
@@ -251,6 +253,19 @@ class webcam_recorder extends module {
 		$out['EMPTY_CAMS'] = $this->config['EMPTY_CAMS'];
 		$out['VERSION_MODULE'] = $this->version;
 		$out['FFMPEG_STATUS'] = (shell_exec('ffmpeg -h')) ? 1 : 0;
+	}
+	
+	function telegram($type, $src) {
+		if($type == 'photo') {
+			include_once(DIR_MODULES . 'telegram/telegram.class.php');
+			$telegram = new telegram();
+			$telegram->sendImageToAll($src);
+		}
+		if($type == 'video') {
+			include_once(DIR_MODULES . 'telegram/telegram.class.php');
+			$telegram = new telegram();
+			$telegram->sendVideoToAll($src);
+		}
 	}
 	
 	function generateNoty() {
@@ -344,18 +359,25 @@ class webcam_recorder extends module {
 		
 		//Генерируем команду *nix
 		if($data["CAMTYPE"] == 'rtsp') {
-			$camType = ' ';
+			$camType = '-y -i "'.$data["DEVICE_ID"].'"';
 		} else {
-			$camType = ' -f video4linux2 ';
+			$camType = '-y -f video4linux2 -i '.$data["DEVICE_ID"];
 		}
 		
-		$nixCommand_Video = 'sudo timeout -s INT 60s ffmpeg -y'.$camType.'-i '.$data["DEVICE_ID"].' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' -pix_fmt yuv420p '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
+		$nixCommand_Video = 'sudo timeout -s INT 60s ffmpeg '.$camType.' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' -pix_fmt yuv420p '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
 		if($data["PHOTO"] == 1) {
 			$nixCommand_Photo = ';sudo timeout -s INT 30s ffmpeg -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg';
 			if(!is_dir($data['PATH'].'/last/')) {
 				$this->createFolder($data['PATH'].'/last/');
 			}
-			//copy($data['PATH'].'/'.$dateTimeName.'/photo.jpg', $data['PATH'].'/last/last.jpg');
+		}
+		
+		if($data["TELEGRAMM"] == 'photo') {
+			$this->telegram('photo', substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$dateTimeName.'/photo.jpg');
+		}
+		
+		if($data["TELEGRAMM"] == 'video') {
+			$this->telegram('photo', substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$dateTimeName.'/video.mp4');
 		}
 		
 		//Кидаем в шел

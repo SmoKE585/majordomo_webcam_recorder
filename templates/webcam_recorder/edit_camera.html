@@ -81,6 +81,13 @@
 				<option value="2"[#if REAKTON==2#] selected[#endif#]>Любое действие</option>
 			</select>
 			
+			<label style="margin-top: 15px;">Отправлять в телеграм?</label>
+			<select class="form-control" name="telegram" style="outline: none;border-radius: 5px;">
+				<option value="0"[#if TELEGRAMM==0#] selected[#endif#]>Нет</option>
+				<option value="photo"[#if TELEGRAMM=='photo'#] selected[#endif#]>Отправлять фото</option>
+				<option value="video"[#if TELEGRAMM=='video'#] selected[#endif#]>Отправлять видео</option>
+			</select>
+			
 			<input type="hidden" name="view_mode" value="edit_camera_DB">
 			<input type="hidden" name="camID" value="[#ID#]">
 			<center style="margin-top: 25px;"><button type="submit" class="btn btn-success"><i class="las la-plus"></i> Сохранить изменения</button></center>
