@@ -4,7 +4,7 @@ class webcam_recorder extends module {
 		$this->name="webcam_recorder";
 		$this->title="WEBCam Recorder";
 		$this->module_category="<#LANG_SECTION_APPLICATIONS#>";
-		$this->version = '2.7';
+		$this->version = '2.9';
 		$this->checkInstalled();
 	}
 
@@ -93,7 +93,7 @@ class webcam_recorder extends module {
 		
 		if($this->mode == 'fixErrorFiles') {
 			shell_exec('sudo systemctl stop ffserver');
-			$this->redirect("?");
+			//$this->redirect("?");
 		}
 		
 		if($this->mode == 'delete_camera' && !empty($this->view_mode)) {
@@ -256,15 +256,19 @@ class webcam_recorder extends module {
 	}
 	
 	function telegram($type, $src) {
-		if($type == 'photo') {
-			include_once(DIR_MODULES . 'telegram/telegram.class.php');
-			$telegram = new telegram();
-			$telegram->sendImageToAll($src);
-		}
-		if($type == 'video') {
-			include_once(DIR_MODULES . 'telegram/telegram.class.php');
-			$telegram = new telegram();
-			$telegram->sendVideoToAll($src);
+		if(!file_exists(DIR_MODULES . 'telegram/telegram.class.php')) {
+			return 'No install module TELEGRAM';
+		} else {
+			if($type == 'photo') {
+				include_once(DIR_MODULES . 'telegram/telegram.class.php');
+				$telegram = new telegram();
+				$telegram->sendImageToAll($src);
+			}
+			if($type == 'video') {
+				include_once(DIR_MODULES . 'telegram/telegram.class.php');
+				$telegram = new telegram();
+				$telegram->sendVideoToAll($src);
+			}
 		}
 	}
 	
@@ -359,7 +363,7 @@ class webcam_recorder extends module {
 		
 		//Генерируем команду *nix
 		if($data["CAMTYPE"] == 'rtsp') {
-			$camType = '-y -i "'.$data["DEVICE_ID"].'"';
+			$camType = '-rtsp_transport tcp -i '.$data["DEVICE_ID"];
 		} else {
 			$camType = '-y -f video4linux2 -i '.$data["DEVICE_ID"];
 		}
@@ -382,6 +386,7 @@ class webcam_recorder extends module {
 		
 		//Кидаем в шел
 		shell_exec($nixCommand_Video.$nixCommand_Photo);
+		//shell_exec('sudo timeout -s INT 180s systemctl stop ffserver');
 	}
 	
 	function usual(&$out) {
