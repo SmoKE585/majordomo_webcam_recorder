@@ -187,6 +187,10 @@ class webcam_recorder extends module {
 					removeLinkedProperty($dataInDB['LINKED_OBJECT2'], $dataInDB['LINKED_PROPERTY2'], $this->name);
 				}
 				
+				if ($array['LINKED_PROPERTY1'] == NULL) {
+					$array['LINKED_PROPERTY1'] = "";
+				}
+				
 				$array['ID'] = $dataInDB['ID'];
 				SQLUpdate('webcam_recorder', $array);
 			}
