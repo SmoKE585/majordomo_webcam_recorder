@@ -381,7 +381,7 @@ class webcam_recorder extends module {
 		}
 		
 		if($data["TELEGRAMM"] == 'video') {
-			$this->telegram('photo', substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$dateTimeName.'/video.mp4');
+			$this->telegram('video', substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$dateTimeName.'/video.mp4');
 		}
 		
 		//Кидаем в шел
