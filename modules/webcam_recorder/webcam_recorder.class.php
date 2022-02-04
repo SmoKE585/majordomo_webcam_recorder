@@ -375,7 +375,11 @@ class webcam_recorder extends module {
 				$this->createFolder($data['PATH'].'/last/');
 			}
 		}
-		
+
+		//Кидаем в шел
+		shell_exec($nixCommand_Video.$nixCommand_Photo);
+		//shell_exec('sudo timeout -s INT 180s systemctl stop ffserver');
+
 		if($data["TELEGRAMM"] == 'photo') {
 			$this->telegram('photo', substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$dateTimeName.'/photo.jpg');
 		}
@@ -383,10 +387,6 @@ class webcam_recorder extends module {
 		if($data["TELEGRAMM"] == 'video') {
 			$this->telegram('video', substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$dateTimeName.'/video.mp4');
 		}
-		
-		//Кидаем в шел
-		shell_exec($nixCommand_Video.$nixCommand_Photo);
-		//shell_exec('sudo timeout -s INT 180s systemctl stop ffserver');
 	}
 	
 	function usual(&$out) {
