@@ -187,6 +187,10 @@ class webcam_recorder extends module {
 					removeLinkedProperty($dataInDB['LINKED_OBJECT2'], $dataInDB['LINKED_PROPERTY2'], $this->name);
 				}
 				
+				if ($array['LINKED_PROPERTY1'] == NULL) {
+					$array['LINKED_PROPERTY1'] = "";
+				}
+				
 				$array['ID'] = $dataInDB['ID'];
 				SQLUpdate('webcam_recorder', $array);
 			}
@@ -368,25 +372,25 @@ class webcam_recorder extends module {
 			$camType = '-y -f video4linux2 -i '.$data["DEVICE_ID"];
 		}
 		
-		$nixCommand_Video = 'sudo timeout -s INT 60s ffmpeg '.$camType.' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' -pix_fmt yuv420p '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
+		$nixCommand_Video = 'sudo timeout -s INT 60s ffmpeg -hide_banner -loglevel panic '.$camType.' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' -pix_fmt yuv420p '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
 		if($data["PHOTO"] == 1) {
-			$nixCommand_Photo = ';sudo timeout -s INT 30s ffmpeg -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg';
+			$nixCommand_Photo = ';sudo timeout -s INT 30s ffmpeg -hide_banner -loglevel panic -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg';
 			if(!is_dir($data['PATH'].'/last/')) {
 				$this->createFolder($data['PATH'].'/last/');
 			}
 		}
-		
+
+		//Кидаем в шел
+		shell_exec($nixCommand_Video.$nixCommand_Photo);
+		//shell_exec('sudo timeout -s INT 180s systemctl stop ffserver');
+
 		if($data["TELEGRAMM"] == 'photo') {
 			$this->telegram('photo', substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$dateTimeName.'/photo.jpg');
 		}
 		
 		if($data["TELEGRAMM"] == 'video') {
-			$this->telegram('photo', substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$dateTimeName.'/video.mp4');
+			$this->telegram('video', substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$dateTimeName.'/video.mp4');
 		}
-		
-		//Кидаем в шел
-		shell_exec($nixCommand_Video.$nixCommand_Photo);
-		//shell_exec('sudo timeout -s INT 180s systemctl stop ffserver');
 	}
 	
 	function usual(&$out) {
