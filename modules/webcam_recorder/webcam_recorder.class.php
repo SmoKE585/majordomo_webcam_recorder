@@ -368,9 +368,9 @@ class webcam_recorder extends module {
 			$camType = '-y -f video4linux2 -i '.$data["DEVICE_ID"];
 		}
 		
-		$nixCommand_Video = 'sudo timeout -s INT 60s ffmpeg '.$camType.' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' -pix_fmt yuv420p '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
+		$nixCommand_Video = 'sudo timeout -s INT 60s ffmpeg -hide_banner -loglevel panic '.$camType.' -t '.$durationRecord.' -f mp4 -r '.$data['BITRATE'].' -s '.$data["RESOLUTION"].' -c:v '.$data['CODEC'].' -pix_fmt yuv420p '.$data['PATH'].'/'.$dateTimeName.'/video.mp4';
 		if($data["PHOTO"] == 1) {
-			$nixCommand_Photo = ';sudo timeout -s INT 30s ffmpeg -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg';
+			$nixCommand_Photo = ';sudo timeout -s INT 30s ffmpeg -hide_banner -loglevel panic -i '.$data['PATH'].'/'.$dateTimeName.'/video.mp4 -an -ss 00:00:02 -r 1 -vframes 1 -s '.$data["RESOLUTION"].' -y -f mjpeg '.$data['PATH'].'/'.$dateTimeName.'/photo.jpg';
 			if(!is_dir($data['PATH'].'/last/')) {
 				$this->createFolder($data['PATH'].'/last/');
 			}
