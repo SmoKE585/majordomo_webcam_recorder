@@ -385,11 +385,11 @@ class webcam_recorder extends module {
 		//shell_exec('sudo timeout -s INT 180s systemctl stop ffserver');
 
 		if($data["TELEGRAMM"] == 'photo') {
-			$this->telegram('photo', substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$dateTimeName.'/photo.jpg');
+			$this->telegram('photo', $data['PATH'] . '/'.$dateTimeName.'/photo.jpg');
 		}
 		
 		if($data["TELEGRAMM"] == 'video') {
-			$this->telegram('video', substr($data['PATH'], mb_strlen($_SERVER['DOCUMENT_ROOT'])).'/'.$dateTimeName.'/video.mp4');
+			$this->telegram('video', $data['PATH'] . '/'.$dateTimeName.'/video.mp4');
 		}
 	}
 	
